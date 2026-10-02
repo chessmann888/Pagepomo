@@ -1,0 +1,172 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pagepomo</title><meta name="theme-color" content="#1f7a6b"><link rel="manifest" href="manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.93/epub.min.js"></script>
+<style>
+:root{--bg:#f2f5f2;--sf:#fff;--ink:#1b2a2f;--mut:#6a7a7e;--ac:#1f7a6b;--hl:#e0a526;--ln:#d9e1dd;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--ser:Georgia,"Iowan Old Style",serif}
+@media(prefers-color-scheme:dark){:root:not([data-t=light]){--bg:#0f1a1d;--sf:#172428;--ink:#e6ece9;--mut:#8da0a3;--ac:#3fb59f;--ln:#26373b}}
+:root[data-t=dark]{--bg:#0f1a1d;--sf:#172428;--ink:#e6ece9;--mut:#8da0a3;--ac:#3fb59f;--ln:#26373b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--sans);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+main{flex:1;overflow:auto;padding:16px}
+h1,h2{font-family:var(--ser);margin:0 0 12px;font-weight:700}h1{font-size:28px}h2{font-size:20px}
+button,input,select{font:inherit;color:inherit}
+button{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:10px 14px;cursor:pointer}
+button.p{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+button:focus-visible,input:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+input,select{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:10px;width:100%}
+nav{display:flex;border-top:1px solid var(--ln);background:var(--sf);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;border-radius:0;background:none;color:var(--mut);padding:12px 2px;font-size:12px}
+nav button.on{color:var(--ac);font-weight:700}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.chip{border-radius:20px;padding:6px 12px;font-size:14px}.chip.on{background:var(--ink);color:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:12px}
+.bk{position:relative;text-align:left;padding:0;overflow:hidden;background:var(--sf);border:1px solid var(--ln);border-radius:10px}
+.cv{aspect-ratio:2/3;background:var(--ac);color:#fff;font:700 14px var(--ser);padding:8px;display:flex;align-items:flex-end;background-size:cover;background-position:center}
+.bk small{display:block;padding:6px 8px 2px;color:var(--mut)}
+.bar{height:4px;background:var(--ln);margin:4px 8px 8px;border-radius:2px}.bar i{display:block;height:100%;background:var(--ac);border-radius:2px}
+.x{position:absolute;top:4px;right:4px;padding:2px 8px;border-radius:20px;background:#000a;color:#fff;border:0}
+.it{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:center}
+.it>div{flex:1;min-width:0}.it b{font-family:var(--ser)}.q{font-family:var(--ser);border-left:3px solid var(--hl);padding-left:10px;margin:4px 0}
+.mut{color:var(--mut);font-size:14px}
+.ring{width:260px;height:260px;margin:12px auto;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring div{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 54px var(--ser)}
+.ring small{font:14px var(--sans);color:var(--mut)}
+.bars{display:flex;gap:6px;align-items:flex-end;height:90px}.bars i{flex:1;background:var(--ac);border-radius:4px 4px 0 0;min-height:3px}
+.big{font:700 32px var(--ser)}
+#rd,#nt{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;z-index:9;padding-top:env(safe-area-inset-top)}
+#rd[hidden],#nt[hidden]{display:none}
+#hd,#ft{display:flex;gap:6px;align-items:center;padding:8px;border-bottom:1px solid var(--ln)}
+#ft{border:0;border-top:1px solid var(--ln);padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+#hd b{flex:1;font:700 15px var(--ser);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#pg{flex:1;overflow:auto;position:relative;background:var(--bg)}
+#pg img,#pg canvas{width:100%;display:block}
+#ft span{flex:1;text-align:center}
+#nt .l{flex:1;overflow:auto;padding:12px}
+</style></head><body>
+<main id="m"></main>
+<nav id="nv"></nav>
+<div id="rd" hidden><div id="hd"><button id="cl">✕</button><b id="tt"></b><button id="bm" title="Bookmark">🔖</button><button id="qt" title="Save quote">❝</button><button id="ls" title="Bookmarks and quotes">☰</button></div>
+<div id="pg"></div><div id="ft"><button id="pv">‹</button><span id="ct"></span><button id="dn" class="p" hidden>Done ✓</button><button id="nx">›</button></div></div>
+<div id="nt" hidden><div id="hd"><button onclick="nt.hidden=1">✕</button><b>This book</b></div><div class="l" id="nl"></div></div>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const $=s=>document.querySelector(s),T=()=>new Date().toISOString().slice(0,10),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S=JSON.parse(localStorage.pp||'null')||{books:[],marks:[],quotes:[],days:{},cfg:{work:25,pages:2,long:5,dir:'ltr',theme:'auto'},t:{end:0,n:0,due:0}};
+const save=()=>localStorage.pp=JSON.stringify(S);
+const db=new Promise(r=>{const q=indexedDB.open('pp',1);q.onupgradeneeded=()=>q.result.createObjectStore('f');q.onsuccess=()=>r(q.result)});
+const put=async(k,v)=>(await db).transaction('f','readwrite').objectStore('f').put(v,k);
+const get=async k=>{const d=await db;return new Promise(r=>{const q=d.transaction('f').objectStore('f').get(k);q.onsuccess=()=>r(q.result)})};
+const del=async k=>(await db).transaction('f','readwrite').objectStore('f').delete(k);
+document.documentElement.dataset.t=S.cfg.theme;
+let tab='lib',kf='all',src='nov',R=null,tm=null;
+const tabs=[['lib','📚','Library'],['dis','🔎','Discover'],['tim','⏱','Timer'],['nts','🔖','Notes'],['sts','📈','Stats']];
+$('#nv').innerHTML=tabs.map(t=>`<button data-k="${t[0]}"><div>${t[1]}</div>${t[2]}</button>`).join('');
+$('#nv').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.k)};
+function go(k){tab=k;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.k==k));({lib,dis,tim,nts,sts})[k]()}
+const pct=b=>Math.round(b.pct??(b.total?(b.pos||1)/b.total*100:0));
+async function addBook(meta,blob){const id=Date.now()+Math.random();if(blob)await put(id,blob);S.books.push({id,pos:1,...meta});save();return id}
+/* LIBRARY */
+function lib(){const ks=['all','novel','manga','manhwa','manhua'],bs=S.books.filter(b=>kf=='all'||b.kind==kf);
+$('#m').innerHTML=`<h1>Library</h1><div class="row">${ks.map(k=>`<button class="chip ${k==kf?'on':''}" data-f="${k}">${k}</button>`).join('')}</div>
+<div class="row"><button class="p" id="imp">+ Import PDF / EPUB / CBZ</button><input id="fi" type="file" accept=".pdf,.epub,.cbz,.zip" multiple hidden></div>
+${bs.length?`<div class="grid">${bs.map(b=>`<div class="bk"><button class="x" data-d="${b.id}">✕</button><div data-o="${b.id}"><div class="cv" style="${b.cover?`background-image:url('${esc(b.cover)}')`:''}">${b.cover?'':esc(b.title)}</div><small>${esc(b.title).slice(0,40)}</small><div class="bar"><i style="width:${pct(b)}%"></i></div></div></div>`).join('')}</div>`:'<p class="mut">Nothing here yet. Import a file from your phone, or find free books in Discover.</p>'}`;
+$('#imp').onclick=()=>$('#fi').click();
+$('#fi').onchange=async e=>{for(const f of e.target.files){const x=f.name.split('.').pop().toLowerCase(),ty=x=='zip'?'cbz':x;await addBook({title:f.name.replace(/\.\w+$/,''),type:ty,kind:ty=='cbz'?'manga':'novel'},f)}lib()};
+$('#m').onclick=async e=>{const f=e.target.dataset.f,d=e.target.dataset.d,o=e.target.closest('[data-o]');
+if(f){kf=f;lib()}else if(d){if(confirm('Remove this book and its notes?')){S.books=S.books.filter(b=>b.id!=d);S.marks=S.marks.filter(x=>x.bid!=d);S.quotes=S.quotes.filter(x=>x.bid!=d);await del(+d);save();lib()}}else if(o)openBook(o.dataset.o,0)}}
+/* READER */
+async function openBook(id,lim){const b=S.books.find(x=>x.id==id);if(!b)return;S.last=b.id;R={b,lim,cnt:0};$('#rd').hidden=0;$('#pg').innerHTML='';$('#tt').textContent=b.title;
+try{if(b.type=='pdf'){R.doc=await pdfjsLib.getDocument({data:await(await get(b.id)).arrayBuffer()}).promise;b.total=R.doc.numPages}
+else if(b.type=='cbz'){R.zip=await JSZip.loadAsync(await get(b.id));R.names=Object.keys(R.zip.files).filter(n=>/\.(jpe?g|png|webp|gif)$/i.test(n)).sort((a,c)=>a.localeCompare(c,0,{numeric:true}));b.total=R.names.length}
+else if(b.type=='epub'){const e=ePub(await(await get(b.id)).arrayBuffer());R.e=e;R.rend=e.renderTo('pg',{width:'100%',height:'100%',flow:'paginated',spread:'none'});
+const dark=matchMedia('(prefers-color-scheme:dark)').matches&&S.cfg.theme!='light'||S.cfg.theme=='dark';
+R.rend.themes.default({body:{background:dark?'#0f1a1d':'#f2f5f2',color:dark?'#e6ece9':'#1b2a2f','font-family':'Georgia,serif','line-height':'1.6'}});
+R.rend.on('relocated',l=>{b.loc=l.start.cfi;if(e.locations.length())b.pct=e.locations.percentageFromCfi(l.start.cfi)*100;save()});
+R.rend.on('selected',(c,ct)=>{R.sel={c,t:ct.window.getSelection().toString()};R.rend.annotations.highlight(c)});
+await R.rend.display(b.loc||undefined);e.ready.then(()=>e.locations.generate(1500))}
+else{b.total=b.chs.length;b.c=b.c||0}
+}catch(err){alert('Could not open this book: '+err.message);closeR();return}
+draw();ui()}
+async function draw(){const b=R.b,p=$('#pg');if(b.type=='epub')return;p.innerHTML='<p class="mut" style="padding:16px">Loading…</p>';p.scrollTop=0;let el;
+if(b.type=='pdf'){const pg=await R.doc.getPage(b.pos),v0=pg.getViewport({scale:1}),v=pg.getViewport({scale:p.clientWidth/v0.width*devicePixelRatio});el=document.createElement('canvas');el.width=v.width;el.height=v.height;await pg.render({canvasContext:el.getContext('2d'),viewport:v}).promise}
+else{el=new Image();if(b.type=='cbz'){el.src=URL.createObjectURL(await R.zip.files[R.names[b.pos-1]].async('blob'))}else{el.src=(await mdPages())[b.pos-1]}}
+p.innerHTML='';p.append(el)}
+async function mdPages(){const b=R.b;if(R.cc!==b.c){const j=await(await fetch('https://api.mangadex.org/at-home/server/'+b.chs[b.c])).json();R.pgs=j.chapter.data.map(f=>`${j.baseUrl}/data/${j.chapter.hash}/${f}`);R.cc=b.c}return R.pgs}
+async function step(d){const b=R.b;if(d>0){R.cnt++;S.days[T()]=(S.days[T()]||0)+1}
+if(b.type=='epub')d>0?R.rend.next():R.rend.prev();
+else if(b.type=='md'){const n=(await mdPages()).length;b.pos+=d;if(b.pos>n){if(b.c+1<b.chs.length){b.c++;b.pos=1}else b.pos=n}else if(b.pos<1){if(b.c>0){b.c--;b.pos=1}else b.pos=1}b.pct=b.c/b.chs.length*100;draw()}
+else{b.pos=Math.max(1,Math.min(b.total,b.pos+d));draw()}
+save();ui()}
+function ui(){const l=R.lim;$('#ct').textContent=l?`${Math.min(R.cnt,l)} / ${l} pages this break`:`${R.b.type=='epub'?pct(R.b)+'%':'p. '+R.b.pos+'/'+(R.b.total||'?')}`;$('#dn').hidden=!(l&&R.cnt>=l)}
+function closeR(){if(R&&R.rend)try{R.rend.destroy()}catch{}R=null;$('#rd').hidden=1;go(tab)}
+$('#cl').onclick=closeR;$('#nx').onclick=()=>step(1);$('#pv').onclick=()=>step(-1);
+$('#dn').onclick=()=>{S.t.n++;S.t.end=Date.now()+S.cfg.work*6e4;S.t.due=0;save();closeR();go('tim')};
+$('#pg').onclick=e=>{if(!R||R.b.type=='epub')return;const x=e.offsetX/$('#pg').clientWidth,r=S.cfg.dir=='rtl';if(x<.3)step(r?1:-1);else if(x>.7)step(r?-1:1)};
+const here=()=>R.b.type=='epub'?R.b.loc:{pos:R.b.pos,c:R.b.c};
+$('#bm').onclick=()=>{S.marks.push({id:Date.now(),bid:R.b.id,loc:here(),label:R.b.type=='epub'?pct(R.b)+'%':'p. '+R.b.pos,at:T()});save();$('#bm').textContent='✅';setTimeout(()=>$('#bm').textContent='🔖',900)};
+$('#qt').onclick=()=>{let t=R.sel&&R.sel.t;if(!t)t=prompt('Type a quote or note for this page:');if(!t)return;S.quotes.push({id:Date.now(),bid:R.b.id,loc:here(),text:t,at:T()});R.sel=null;save();$('#qt').textContent='✅';setTimeout(()=>$('#qt').textContent='❝',900)};
+$('#ls').onclick=()=>{const id=R.b.id,m=S.marks.filter(x=>x.bid==id),q=S.quotes.filter(x=>x.bid==id);
+$('#nl').innerHTML=(m.length+q.length?'':'<p class="mut">No bookmarks or quotes yet. Tap 🔖 to bookmark, or select text in an EPUB and tap ❝.</p>')+m.map(x=>`<div class="it" data-j='${JSON.stringify(x.loc)}'><div><b>🔖 ${esc(x.label)}</b><div class="mut">${x.at}</div></div></div>`).join('')+q.map(x=>`<div class="it" data-j='${JSON.stringify(x.loc)}'><div><div class="q">${esc(x.text)}</div><div class="mut">${x.at}</div></div></div>`).join('');$('#nt').hidden=0};
+$('#nl').onclick=async e=>{const i=e.target.closest('[data-j]');if(!i)return;const l=JSON.parse(i.dataset.j);$('#nt').hidden=1;if(R.b.type=='epub')R.rend.display(l);else{R.b.pos=l.pos;R.b.c=l.c||0;draw();save();ui()}};
+/* DISCOVER */
+function dis(){$('#m').innerHTML=`<h1>Discover</h1><div class="row"><button class="chip ${src=='nov'?'on':''}" data-s="nov">Novels (Gutenberg)</button><button class="chip ${src=='mg'?'on':''}" data-s="mg">Manga / manhwa / manhua</button></div>
+<div class="row"><input id="q" placeholder="Search title or author" enterkeyhint="search"></div><div id="rs"></div>`;
+$('#m').onclick=e=>{if(e.target.dataset.s){src=e.target.dataset.s;dis()}};$('#q').onchange=find;find()}
+async function find(){const q=$('#q').value.trim(),rs=$('#rs');rs.innerHTML='<p class="mut">Searching…</p>';
+try{if(src=='nov'){const j=await(await fetch('https://gutendex.com/books?'+(q?'search='+encodeURIComponent(q):'sort=popular'))).json();
+rs.innerHTML=j.results.map((x,i)=>`<div class="it"><div><b>${esc(x.title)}</b><div class="mut">${esc(x.authors.map(a=>a.name).join(', '))}</div></div><button class="p" data-g="${i}">Add</button></div>`).join('')||'<p class="mut">No results.</p>';
+rs.onclick=e=>{const i=e.target.dataset.g;if(i!=null)addGut(j.results[i],e.target)}}
+else{const u='https://api.mangadex.org/manga?limit=20&includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive&availableTranslatedLanguage[]=en&order['+(q?'relevance':'followedCount')+']=desc'+(q?'&title='+encodeURIComponent(q):''),j=await(await fetch(u)).json();
+rs.innerHTML=j.data.map((x,i)=>`<div class="it"><div><b>${esc(Object.values(x.attributes.title)[0])}</b><div class="mut">${({ja:'manga',ko:'manhwa',zh:'manhua'})[x.attributes.originalLanguage]||'manga'}</div></div><button class="p" data-g="${i}">Add</button></div>`).join('');
+rs.onclick=e=>{const i=e.target.dataset.g;if(i!=null)addMd(j.data[i],e.target)}}}
+catch{rs.innerHTML='<p class="mut">Could not reach the source. Check your connection and try again.</p>'}}
+async function addGut(x,btn){btn.textContent='…';const u=x.formats['application/epub+zip'];
+try{const r=await fetch(u);if(!r.ok)throw 0;await addBook({title:x.title,type:'epub',kind:'novel',cover:x.formats['image/jpeg']},await r.blob());btn.textContent='Added'}
+catch{btn.textContent='Add';if(confirm('This site blocks direct download. Open it to save the file, then use Import in Library?'))open(u)}}
+async function addMd(x,btn){btn.textContent='…';try{const j=await(await fetch(`https://api.mangadex.org/manga/${x.id}/feed?translatedLanguage[]=en&order[chapter]=asc&limit=500&contentRating[]=safe&contentRating[]=suggestive`)).json(),chs=j.data.filter(c=>c.attributes.pages>0).map(c=>c.id);
+if(!chs.length)throw 0;const cv=x.relationships.find(r=>r.type=='cover_art');
+await addBook({title:Object.values(x.attributes.title)[0],type:'md',kind:({ja:'manga',ko:'manhwa',zh:'manhua'})[x.attributes.originalLanguage]||'manga',chs,c:0,cover:cv?`https://uploads.mangadex.org/covers/${x.id}/${cv.attributes.fileName}.256.jpg`:''});btn.textContent='Added'}
+catch{btn.textContent='No chapters'}}
+/* TIMER */
+const C=2*Math.PI*118,brk=()=>S.t.n%4==3?S.cfg.long:S.cfg.pages;
+function tim(){const t=S.t,last=S.books.find(b=>b.id==S.last);
+$('#m').innerHTML=`<h1>Timer</h1><div class="ring"><svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="118" fill="none" stroke="var(--ln)" stroke-width="10"/><circle id="rg" cx="130" cy="130" r="118" fill="none" stroke="var(--ac)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg><div><span id="tx">--:--</span><small id="sb"></small></div></div>
+<div class="row" style="justify-content:center" id="bt"></div><p class="mut" style="text-align:center">${last?`Next up: ${esc(last.title)}`:'Add a book first, then start the timer.'}</p>`;
+$('#bt').onclick=e=>{const a=e.target.dataset.a;if(!a)return;
+if(a=='st'){if('Notification'in window&&Notification.permission=='default')Notification.requestPermission();t.end=Date.now()+S.cfg.work*6e4;t.due=0}
+if(a=='ps'){t.end=0;t.due=0}
+if(a=='rd'){if(!last)return go('lib');t.due=0;t.end=0;save();return openBook(last.id,brk())}
+if(a=='sn'){t.due=0;t.end=Date.now()+3e5}
+if(a=='sk'){t.n++;t.due=0;t.end=Date.now()+S.cfg.work*6e4}
+save();tick()};tick()}
+function ping(){const m=`Time to read ${brk()} pages`;if(navigator.vibrate)navigator.vibrate([200,100,200]);if('Notification'in window&&Notification.permission=='granted'){navigator.serviceWorker?.ready.then(r=>r.showNotification('Pagepomo',{body:m,tag:'pp',requireInteraction:true})).catch(()=>new Notification('Pagepomo',{body:m}))}}
+function tick(){const t=S.t;if(t.end&&Date.now()>=t.end){t.end=0;t.due=1;save();ping()}
+if(tab!='tim'||!$('#tx'))return;const left=t.end-Date.now(),f=t.end?left/(S.cfg.work*6e4):1,mm=Math.max(0,Math.ceil(left/1e3));
+$('#tx').textContent=t.due?'Break':t.end?`${String(mm/60|0).padStart(2,'0')}:${String(mm%60).padStart(2,'0')}`:String(S.cfg.work).padStart(2,'0')+':00';
+$('#sb').textContent=t.due?`${brk()} pages ready`:t.end?'working':'ready';$('#rg').style.strokeDashoffset=C*(1-(t.due?1:f));
+$('#bt').innerHTML=t.due?'<button class="p" data-a="rd">Read now</button><button data-a="sn">Snooze 5 min</button><button data-a="sk">Skip</button>':t.end?'<button data-a="ps">Stop</button><button data-a="rd">Read now</button>':'<button class="p" data-a="st">Start work</button><button data-a="rd">Read now</button>'}
+setInterval(tick,1000);document.addEventListener('visibilitychange',tick);
+/* NOTES */
+function nts(){const nm=id=>(S.books.find(b=>b.id==id)||{}).title||'Removed book';
+$('#m').innerHTML=`<h1>Notes</h1><div class="row"><button id="ex">Copy all quotes</button></div><h2>Quotes</h2>${S.quotes.map(x=>`<div class="it"><div><div class="q">${esc(x.text)}</div><div class="mut">${esc(nm(x.bid))} · ${x.at}</div></div><button data-q="${x.id}">✕</button></div>`).join('')||'<p class="mut">Select text in an EPUB, then tap ❝ in the reader.</p>'}<h2>Bookmarks</h2>${S.marks.map(x=>`<div class="it"><div><b>${esc(nm(x.bid))}</b><div class="mut">${esc(x.label)} · ${x.at}</div></div><button data-b="${x.id}">✕</button></div>`).join('')||'<p class="mut">Tap 🔖 in the reader.</p>'}`;
+$('#ex').onclick=()=>{navigator.clipboard.writeText(S.quotes.map(x=>`“${x.text}” — ${nm(x.bid)}`).join('\n\n'));$('#ex').textContent='Copied'};
+$('#m').onclick=e=>{const q=e.target.dataset.q,b=e.target.dataset.b;if(q){S.quotes=S.quotes.filter(x=>x.id!=q)}else if(b){S.marks=S.marks.filter(x=>x.id!=b)}else return;save();nts()}}
+/* STATS + SETTINGS */
+function sts(){const d=[...Array(7)].map((_,i)=>{const x=new Date(Date.now()-(6-i)*864e5).toISOString().slice(0,10);return[x,S.days[x]||0]}),mx=Math.max(1,...d.map(x=>x[1]));let st=0;for(let i=0;;i++){const x=new Date(Date.now()-i*864e5).toISOString().slice(0,10);if(S.days[x])st++;else if(i)break;else if(!S.days[x]&&i==0)continue;else break}
+const tot=Object.values(S.days).reduce((a,b)=>a+b,0),c=S.cfg;
+$('#m').innerHTML=`<h1>Stats</h1><div class="row"><div><div class="big">${S.days[T()]||0}</div><div class="mut">pages today</div></div><div style="margin-left:24px"><div class="big">${st}</div><div class="mut">day streak</div></div><div style="margin-left:24px"><div class="big">${tot}</div><div class="mut">pages total</div></div></div>
+<div class="bars">${d.map(x=>`<i title="${x[0]}" style="height:${x[1]/mx*100}%"></i>`).join('')}</div><p class="mut">Last 7 days</p>
+<h2>Settings</h2>
+<p>Work minutes <input id="s1" type="number" min="5" max="90" value="${c.work}"></p><p>Pages per break <input id="s2" type="number" min="1" max="10" value="${c.pages}"></p><p>Pages on every 4th break <input id="s3" type="number" min="1" max="20" value="${c.long}"></p>
+<p>Reading direction <select id="s4"><option value="ltr">Left to right</option><option value="rtl" ${c.dir=='rtl'?'selected':''}>Right to left (manga)</option></select></p>
+<p>Theme <select id="s5"><option>auto</option><option ${c.theme=='light'?'selected':''}>light</option><option ${c.theme=='dark'?'selected':''}>dark</option></select></p>`;
+const sv=()=>{c.work=+$('#s1').value||25;c.pages=+$('#s2').value||2;c.long=+$('#s3').value||5;c.dir=$('#s4').value;c.theme=$('#s5').value;document.documentElement.dataset.t=c.theme;save()};
+document.querySelectorAll('#m input,#m select').forEach(i=>i.onchange=sv)}
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+go('lib');
+</script></body></html>
